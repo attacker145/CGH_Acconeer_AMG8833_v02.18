@@ -1554,19 +1554,15 @@ static int readPageResponse(HTTPCli_Handle httpClient)//Read data.txt page
                 UART_PRINT("\n\r Mismatch in content length and received data length\n\r");
                 goto end;
             }
-            dataBuffer[bytesRead] = '\0';
-            UART_PRINT(", Text from /webapp/CC3200command.php ");
+            dataBuffer[bytesRead] = '\0';          //"bytesRead" is the last index of the dataBuffer array. This adds the null character
+            UART_PRINT(", Text from /webapp/CC3200command.php ");//CC3200command.php gets commands from cgh.php
             char *output = NULL;
-
             UART_PRINT(", ");
             UART_PRINT(dataBuffer);
             UART_PRINT(", ");
             UART_PRINT("Current ID: ");
-            //for (i=0; i<6; i++){
-            //    UART_PRINT("%d", macAddressVal[i]);
-            //}
             UART_PRINT("%d", macAddressVal[5]);
-            sprintf(dump, "%d", macAddressVal[5]);
+            sprintf(dump, "%d", macAddressVal[5]);//Save macAddressVal[5] in dump as a decimal string
             output = strstr (dataBuffer, dump);//Find current ID value (string) in the received buffer
             if (output){
                 UART_PRINT("\nID is correct. ID_flg set to 1");
@@ -2084,7 +2080,7 @@ int main()
         }
     }
 
-    sl_NetCfgGet(SL_MAC_ADDRESS_GET,NULL,&macAddressLen,(_u8 *)macAddressVal);
+    sl_NetCfgGet(SL_MAC_ADDRESS_GET,NULL,&macAddressLen,(_u8 *)macAddressVal);//Get MAC address value
     UART_PRINT("\n MAC address: %02X:%02X:%02X:%02X:%02X:%02X \n",
                macAddressVal[0],
                macAddressVal[1],
@@ -2200,12 +2196,12 @@ int main()
 #ifdef cloud
         GPIO_IF_GetPortNPin(SH_GPIO_0,&uiGPIOPort,&pucGPIOPin);    // Computes port and pin number from the GPIO number
         ucPinValue = GPIO_IF_Get(SH_GPIO_0,uiGPIOPort,pucGPIOPin); // Read pin status of GPIO0 -WiFi (PIN 50)
-        if(((t_cntr > 500)  || (human == 1)&&(t_cntr > 50)) && (ucPinValue == 0) && (cnn_fail == 0)){//300= 35 sec
+        if(((t_cntr > 1000)||(human == 1)&&(t_cntr > 50)) && (ucPinValue == 0)&&(cnn_fail == 0)){//t_cntr = 501 is approximately 60 sec
             GPIO_IF_GetPortNPin(SH_GPIO_9,&uiGPIOPort,&pucGPIOPin);
             ucPinValue = GPIO_IF_Get(SH_GPIO_9,uiGPIOPort,pucGPIOPin); //Read LED ON/OFF status
             if(human == 1){//Human Detected
                 if (ucPinValue == 1){//GPIO9 Red LED ON
-                    cx = snprintf(buf, 99, "IR1=Human Detected & ms=%d & RoomT=%.2f & TName=CGH & BLE=ON", macAddressVal[5], RoomT);
+                    cx = snprintf(buf, 99, "IR1=Human Detected & ms=%d & RoomT=%.2f & TName=CGH & BLE=ON", macAddressVal[5], RoomT);// Sending only one byte of the macAddressVal
                 }else{//GPIO9 Red LED OFF
                     cx = snprintf(buf, 99, "IR1=Human Detected & ms=%d & RoomT=%.2f & TName=CGH & BLE=OFF", macAddressVal[5], RoomT);
                 }
